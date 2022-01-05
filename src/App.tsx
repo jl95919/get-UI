@@ -33,6 +33,8 @@ function App() {
   }
 
   const test = async() => {
+    console.log(memberAddresses);
+    return;
     try {
       if (window.ethereum) {
         await connectWallet();
@@ -65,10 +67,10 @@ function App() {
   let fileReader: any;
 
   const handleFileRead = (e: any) => {
-    console.log('abcd');
     const content = fileReader.result;
+    console.log(content);
     const addresses = content.split('\n');
-    const addressList = addresses.map((address: any) => address)
+    const addressList = addresses.map((address: any) => address.trim())
     // console.log(memberAddresses);
     // setMemberAddresses((prevState: any[]) => [...prevState, ...addressList])
     setMemberAddresses(addressList)
