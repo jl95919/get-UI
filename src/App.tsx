@@ -32,9 +32,7 @@ function App() {
     }
   }
 
-  const test = async() => {
-    console.log(memberAddresses);
-    return;
+  const addInMemberList = async() => {
     try {
       if (window.ethereum) {
         await connectWallet();
@@ -49,9 +47,52 @@ function App() {
       memberAddresses.forEach(async (item: any) => {
         const response = await getContract.methods.addInMemberList(item, memberLevel).send({from: walletAddress});
       });
-      // const response = await getContract.methods.mint().call();
-      // console.log(response);
-      // console.log(response);
+    } catch(e: any) {
+      console.log(e);
+    }
+  }
+
+  const removeFromMemberList = async() => {
+    try {
+      if (window.ethereum) {
+        await connectWallet();
+      }
+      let web3 = new Web3(window.ethereum);
+      const getContract = new web3.eth.Contract(
+        GETContract as AbiItem[],
+        contractAddress
+      );
+      console.log(memberAddresses);
+      memberAddresses.forEach(async (item: any) => {
+        let isInList = false;
+        let memberList = "";
+        switch(memberLevel) {
+          case 0:
+            isInList = await getContract.methods.isInSuperList(item).call();
+            memberList = "Super";
+            break;
+
+          case 1:
+            isInList = await getContract.methods.isInSpecialList(item).call();
+            memberList = "Special";
+            break;  
+
+          case 2:
+            isInList = await getContract.methods.isInStandardList(item).call();
+            memberList = "Standard";
+            break;
+          
+          default:
+            break;
+        }
+
+        if (!isInList) {
+          alert(item + "is not in the" + memberList + "member list!");
+          continue;
+        } else {
+          const response = await getContract.methods.removeFromMemberList(item, memberLevel).send({from: walletAddress});
+        }
+      });
     } catch(e: any) {
       console.log(e);
     }
@@ -86,30 +127,43 @@ function App() {
 
   return (
     <div className="App">
-      <button onClick={connectWallet} className='cta-button connect-wallet-button'>
-        Connect Wallet
-      </button>
-      <button onClick={test} className='cta-button'>
-        Test
-      </button>
-      <Dropdown 
-        options={options} 
-        onChange={level => {
-          setMemberLevel(parseInt(level.value));
-        }}
-        value={defaultOption}
-        placeholder="Select an Level of the list" 
-      />
+      <div className="wallet-connect">
+        <button onClick={connectWallet} className='cta-button connect-wallet-button'>
+          Connect Wallet
+        </button>
+      </div>
+      <div className="file-load">
+        <input
+          type='file'
+          id='file'
+          className='input-file'
+          accept='.txt'
+          onChange={(e: any) => {
+              handleFileChosen(e.target.files[0])
+          }}
+        />
+        <Dropdown 
+          placeholderClassName='dropdown-placeholder'
+          options={options} 
+          onChange={level => {
+            setMemberLevel(parseInt(level.value));
+          }}
+          value={defaultOption}
+          placeholder="Select an Level of the list" 
+        />
+      </div>
+      <div>
+        <button onClick={addInMemberList} className='cta-button add-member-button'>
+          Add to member list
+        </button>
+      </div>
+      <div>
+        <button onClick={removeFromMemberList} className='cta-button add-member-button'>
+          Remove from the list
+        </button>
+
+      </div>
       <p>{memberLevel}</p>
-      <input
-        type='file'
-        id='file'
-        className='input-file'
-        accept='.txt'
-        onChange={(e: any) => {
-            handleFileChosen(e.target.files[0])
-        }}
-      />
     </div>
   );
 
