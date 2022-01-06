@@ -88,7 +88,6 @@ function App() {
 
         if (!isInList) {
           alert(item + "is not in the" + memberList + "member list!");
-          continue;
         } else {
           const response = await getContract.methods.removeFromMemberList(item, memberLevel).send({from: walletAddress});
         }
